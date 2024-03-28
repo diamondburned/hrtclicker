@@ -74,6 +74,16 @@ func (m *Monitor) Run(ctx context.Context) (err error) {
 				continue
 			}
 
+			if err := m.Database.MarkNotified(ctx, lastDose.DosageAt); err != nil {
+				if !db.IsAlreadyExists(err) {
+					m.Logger.Warn(
+						"failed to mark dose as notified",
+						"dosage_at", lastDose.DosageAt,
+						"err", err)
+				}
+				continue
+			}
+
 			m.Logger.Debug(
 				"sending gotify notification",
 				"endpoint", m.Config.Gotify.Endpoint)

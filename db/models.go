@@ -5,10 +5,16 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 )
 
 type HRTHistory struct {
 	DosageAt time.Time
 	HRTType  string
+}
+
+type Notified struct {
+	DosageAt   time.Time
+	NotifiedAt sql.NullTime
 }

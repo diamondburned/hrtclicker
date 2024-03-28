@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"strings"
 
 	"libdb.so/lazymigrate"
 	_ "modernc.org/sqlite"
@@ -76,4 +77,9 @@ func (db *SQLiteDB) Tx(f func(*Queries) error) error {
 
 func IsNotFound(err error) bool {
 	return errors.Is(err, sql.ErrNoRows)
+}
+
+func IsAlreadyExists(err error) bool {
+	// like hell i'm gonna import sqlite3
+	return strings.Contains(err.Error(), "UNIQUE constraint failed")
 }

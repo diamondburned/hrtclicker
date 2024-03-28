@@ -4,3 +4,10 @@ CREATE TABLE hrt_history (
 );
 
 CREATE INDEX hrt_history_hrt_type ON hrt_history(hrt_type);
+
+--------------------------------- NEW VERSION ---------------------------------
+
+CREATE TABLE notified (
+	dosage_at TIMESTAMP PRIMARY KEY,
+	notified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

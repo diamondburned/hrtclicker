@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 )
 
 const deleteLastDose = `-- name: DeleteLastDose :exec
@@ -54,6 +55,15 @@ func (q *Queries) LastDose(ctx context.Context, hrtType string) (HRTHistory, err
 	var i HRTHistory
 	err := row.Scan(&i.DosageAt, &i.HRTType)
 	return i, err
+}
+
+const markNotified = `-- name: MarkNotified :exec
+INSERT INTO notified (dosage_at) VALUES (?)
+`
+
+func (q *Queries) MarkNotified(ctx context.Context, dosageAt time.Time) error {
+	_, err := q.db.ExecContext(ctx, markNotified, dosageAt)
+	return err
 }
 
 const recordDosage = `-- name: RecordDosage :exec
