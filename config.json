@@ -3,7 +3,7 @@
   "listen_address": ":8375",
   "hrt": {
     "type": "patches",
-    "interval": "1m"
+    "interval": "36h"
   },
   "gotify": {
     "endpoint": "http://gotify.skate-gopher.ts.net",

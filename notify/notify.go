@@ -37,7 +37,7 @@ func NewMonitor(deps Dependencies) *Monitor {
 	return &Monitor{Dependencies: deps}
 }
 
-const tickInterval = time.Second
+const tickInterval = time.Minute
 
 // Run starts the monitoring process for the HRT clicker application until the
 // context is canceled.
