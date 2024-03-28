@@ -12,9 +12,7 @@ import (
 // Config contains the configuration for the hrtclicker application.
 // See config.json for an example configuration.
 type Config struct {
-	DatabasePath  string `json:"database_path"`
-	ListenAddress string `json:"listen_address"`
-	HRT           struct {
+	HRT struct {
 		Type     HRTType           `json:"type"`
 		Interval cfgtypes.Duration `json:"interval"`
 	} `json:"hrt"`

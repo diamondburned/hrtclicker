@@ -17,10 +17,16 @@ import (
 	"libdb.so/tmplutil"
 )
 
-var configPath = "config.json"
+var (
+	configPath   = "config.json"
+	httpAddress  = ":8375"
+	databasePath = "/tmp/hrt-clicker.db"
+)
 
 func main() {
 	flag.StringVar(&configPath, "config", configPath, "path to the configuration file")
+	flag.StringVar(&httpAddress, "addr", httpAddress, "address to listen on for HTTP requests")
+	flag.StringVar(&databasePath, "database", databasePath, "path to the SQLite database file")
 	flag.Parse()
 
 	if !run(context.Background()) {
@@ -62,11 +68,11 @@ func run(ctx context.Context) bool {
 		tmpl = web.EmbeddedTemplates()
 	}
 
-	db, err := db.Open(cfg.DatabasePath)
+	db, err := db.Open(databasePath)
 	if err != nil {
 		slog.Error(
 			"failed to open database",
-			"database_path", cfg.DatabasePath,
+			"database_path", databasePath,
 			"err", err)
 		return false
 	}
@@ -77,7 +83,7 @@ func run(ctx context.Context) bool {
 	errg.Go(func() error {
 		slog.Info(
 			"starting server",
-			"listen_address", cfg.ListenAddress)
+			"http_address", httpAddress)
 
 		server := server.New(server.Dependencies{
 			Logger:    slog.Default().With("component", "http"),
@@ -86,9 +92,10 @@ func run(ctx context.Context) bool {
 			Templates: tmpl,
 		})
 
-		if err := hserve.ListenAndServe(ctx, cfg.ListenAddress, server); err != nil {
+		if err := hserve.ListenAndServe(ctx, httpAddress, server); err != nil {
 			slog.Error(
 				"failed to serve HTTP server",
+				"http_address", httpAddress,
 				"err", err)
 			return err
 		}
