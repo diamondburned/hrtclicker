@@ -1,0 +1,9 @@
+{
+  "hrt": {
+    "interval": "36h"
+  },
+  "gotify": {
+    "endpoint": "http://gotify.skate-gopher.ts.net",
+    "token": "AWa1gZuo2JlXb-9"
+  }
+}
