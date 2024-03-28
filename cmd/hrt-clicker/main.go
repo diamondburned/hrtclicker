@@ -24,9 +24,9 @@ var (
 )
 
 func main() {
-	flag.StringVar(&configPath, "config", configPath, "path to the configuration file")
-	flag.StringVar(&httpAddress, "addr", httpAddress, "address to listen on for HTTP requests")
-	flag.StringVar(&databasePath, "database", databasePath, "path to the SQLite database file")
+	flag.StringVar(&configPath, "c", configPath, "path to the configuration file")
+	flag.StringVar(&httpAddress, "l", httpAddress, "address to listen on for HTTP requests")
+	flag.StringVar(&databasePath, "db", databasePath, "path to the SQLite database file")
 	flag.Parse()
 
 	if !run(context.Background()) {
