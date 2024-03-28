@@ -1,9 +1,16 @@
 {
+  "database_path": "/tmp/hrt-clicker.db",
+  "listen_address": ":8375",
   "hrt": {
-    "interval": "36h"
+    "type": "patches",
+    "interval": "1m"
   },
   "gotify": {
     "endpoint": "http://gotify.skate-gopher.ts.net",
-    "token": "AWa1gZuo2JlXb-9"
+    "token": "AWa1gZuo2JlXb-9",
+    "notification": {
+      "title": "Apply a new estrogen patch",
+      "message": "It's been about 36 hours since your last patch."
+    }
   }
 }

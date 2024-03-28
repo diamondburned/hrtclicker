@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "sql": [
+    {
+      "engine": "sqlite",
+      "queries": "queries.sql",
+      "schema": "schema.sql",
+      "gen": {
+        "go": {
+          "package": "db",
+          "out": ".",
+          "rename": {
+            "hrt_history": "HRTHistory",
+            "hrt_type": "HRTType"
+          }
+        }
+      }
+    }
+  ]
+}

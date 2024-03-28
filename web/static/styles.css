@@ -1,0 +1,169 @@
+:root {
+  --blue: #76d9ff;
+  --pink: #ffc0cd;
+  --blue-text: #55cdfc;
+  --pink-text: #f89fb1;
+  --blue-rgb: 118, 217, 255;
+  --pink-rgb: 255, 192, 205;
+  --bg: #201b1f;
+  --fg: #eee;
+  --b2: #40363a;
+  --f2: #ccc;
+  --hl: #fff;
+  --ov: rgba(255, 255, 255, 0.15);
+  --hr: rgba(255, 255, 255, 0.6);
+  --radius: 0.5rem;
+  --spacing: 1rem;
+  --transition: 75ms linear;
+  --page-transition: 200ms ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0;
+    --page-transition: 0;
+  }
+}
+
+*,
+h1,
+h2,
+h3,
+h4 {
+  font-family: sans-serif;
+}
+
+body {
+  padding-top: 0;
+  padding-bottom: 0;
+  color: var(--fg);
+  background-color: var(--bg);
+}
+
+button {
+  background-color: var(--pink-text);
+  border: none;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+
+button:hover {
+  background-color: var(--pink);
+}
+
+section {
+  margin: var(--spacing) 0;
+}
+
+section h2,
+section h3 {
+  padding: 0 calc(var(--spacing) / 2);
+  text-align: center;
+}
+
+section h2 {
+  font-size: 1.35em;
+}
+
+section h3 {
+  font-size: 1.15em;
+}
+
+header {
+  margin: var(--spacing) 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header a.github-button {
+  border: none;
+}
+
+header .github-button img {
+  width: 1.5em;
+  height: auto;
+  margin: 0;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1em;
+}
+
+table td,
+table th {
+  padding: calc(var(--spacing) / 2);
+}
+
+#index #countdown {
+  text-align: center;
+  margin: calc(2 * var(--spacing)) 0;
+  /* border: 2px solid var(--blue); */
+  /* border-radius: var(--radius); */
+  /* background-color: rgba(var(--blue-rgb), 0.1); */
+}
+
+#index #countdown p {
+  font-size: 1.5em;
+  min-height: 5em;
+  line-height: 1.35;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#index #countdown time.large {
+  font-size: 1.5em;
+}
+
+#index #dosage-control > * {
+  display: flex;
+  flex-direction: column;
+}
+
+#index #dosage-control button:first-child {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+#index #dosage-control button:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+#index #dosage-control button {
+  width: 100%;
+  margin: 0;
+}
+
+#index #record-dose {
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: calc(2 * var(--spacing));
+  width: 100%;
+
+  color: var(--blue-text);
+  border: 2px solid var(--blue);
+  background-color: rgba(var(--blue-rgb), 0.1);
+}
+
+#index #record-dose:hover {
+  background-color: var(--blue);
+}
+
+#index #delete-dose {
+  padding: calc(0.75 * var(--spacing));
+
+  color: var(--pink-text);
+  border: 2px solid var(--pink);
+  border-top: none;
+  background-color: rgba(var(--pink-rgb), 0.1);
+}
+
+#index #recent-doses table th:nth-child(2),
+#index #recent-doses table td:nth-child(2) {
+  max-width: 5em;
+}
