@@ -12,6 +12,7 @@
 		(flake-utils.lib.eachDefaultSystem (system:
 			let
 				pkgs = nixpkgs.legacyPackages.${system};
+				lib  = pkgs.lib;
 			in
 			{
 				devShells.default = pkgs.mkShell {
@@ -38,9 +39,39 @@
 						mainProgram = "hrt-clicker";
 					};
 				};
+
+				checks = let
+					# Taken from https://github.com/Mic92/cntr/blob/master/vm-test.nix.
+					makeTest' = pkgs.callPackage "${nixpkgs}/nixos/tests/make-test-python.nix";
+					makeTest = args: makeTest' args {
+						inherit pkgs system;
+					};
+				in {
+					default = makeTest {
+						name = "hrtclicker";
+						nodes.server = { ... }: {
+							imports = [
+								self.nixosModules.default
+							];
+
+							services.hrtclicker = {
+								enable = true;
+								configPath = ./config.json;
+								httpAddress = ":29384";
+							};
+						};
+
+						testScript = lib.concatStringsSep "\n" [
+							''start_all()''
+							''server.wait_for_unit("hrtclicker.service")''
+							''server.wait_for_open_port(29384)''
+							''server.succeed("curl http://localhost:29384")''
+							''server.succeed("curl -X POST http://localhost:29384/dosage/record")''
+						];
+					};
+				};
 			}
-			)
-		) // {
+		)) // {
 			nixosModules.default =
 				{ config, lib, pkgs, ... }:
 
@@ -79,6 +110,14 @@
 								See https://github.com/diamondburned/hrtclicker/blob/main/config.json.
 							'';
 						};
+
+						package = mkOption {
+							type = types.package;
+							default = self.packages.${pkgs.system}.default;
+							description = ''
+								The package to use for hrtclicker.
+							'';
+						};
 					};
 
 					config = mkIf cfg.enable {
@@ -87,7 +126,9 @@
 							after = [ "network.target" ];
 							wantedBy = [ "multi-user.target" ];
 							serviceConfig = {
-								ExecStart = "${pkgs.hrtclicker}/bin/hrt-clicker -c ${configPath} -l ${httpAddress} -db ${databasePath}";
+								ExecStart =
+									with cfg;
+									"${lib.getExe package} -c ${configPath} -l ${httpAddress} -db ${databasePath}";
 								DynamicUser = true;
 								StateDirectory = "hrtclicker";
 								RuntimeDirectory = "hrtclicker";
