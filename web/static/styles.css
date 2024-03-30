@@ -151,6 +151,7 @@ table th {
 }
 
 #index #record-dose:hover {
+  color: var(--fg);
   background-color: var(--blue);
 }
 
@@ -161,6 +162,11 @@ table th {
   border: 2px solid var(--pink);
   border-top: none;
   background-color: rgba(var(--pink-rgb), 0.1);
+}
+
+#index #delete-dose:hover {
+  color: var(--fg);
+  background-color: var(--pink);
 }
 
 #index #recent-doses table th:nth-child(2),
