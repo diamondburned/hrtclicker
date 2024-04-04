@@ -119,15 +119,15 @@
     let unit = "second";
     if (Math.abs(duration) > day) {
       unit = "day";
-      duration = Math.floor(duration / day);
+      duration = Math.round(duration / day);
     } else if (Math.abs(duration) > hour) {
       unit = "hour";
-      duration = Math.floor(duration / hour);
+      duration = Math.round(duration / hour);
     } else if (Math.abs(duration) > minute) {
       unit = "minute";
-      duration = Math.floor(duration / minute);
+      duration = Math.round(duration / minute);
     } else {
-      duration = Math.floor(duration);
+      duration = Math.round(duration);
     }
 
     return relativeFormatters[long ? "long" : "short"].format(duration, unit);
