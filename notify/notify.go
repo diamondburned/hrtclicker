@@ -1,20 +1,16 @@
 package notify
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"log/slog"
-	"net/http"
-	"net/url"
 	"strings"
 	"text/template"
 	"time"
 
 	"libdb.so/hrtclicker"
 	"libdb.so/hrtclicker/db"
+	"libdb.so/hrtclicker/internal/notifier"
 )
 
 // Dependencies is a set of dependencies required by the Monitor.
@@ -122,49 +118,16 @@ func (m *Monitor) sendNotification(ctx context.Context, data hrtclicker.Notifica
 		Extras:  m.Config.Gotify.Notification.Extras,
 	}
 
-	u := m.Config.Gotify.Endpoint + "/message?"
-	u += (url.Values{"token": {m.Config.Gotify.Token}}).Encode()
-
-	b, err := json.Marshal(notification)
-	if err != nil {
-		m.Logger.Error(
-			"failed to marshal notification",
-			"notification", notification,
-			"err", err)
-		return
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", u, bytes.NewReader(b))
-	if err != nil {
-		m.Logger.Error(
-			"failed to create request",
-			"method", "POST",
-			"endpoint", m.Config.Gotify.Endpoint,
-			"err", err)
-		return
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	r, err := http.DefaultClient.Do(req)
+	err = notifier.Notify(
+		ctx,
+		m.Config.Gotify.Endpoint,
+		m.Config.Gotify.Token,
+		notification,
+	)
 	if err != nil {
 		m.Logger.Error(
 			"failed to send notification",
-			"method", "POST",
-			"endpoint", m.Config.Gotify.Endpoint,
 			"err", err)
-		return
-	}
-	defer r.Body.Close()
-
-	if r.StatusCode >= 400 {
-		body, _ := io.ReadAll(r.Body)
-		m.Logger.Error(
-			"unexpected status code",
-			"method", "POST",
-			"endpoint", m.Config.Gotify.Endpoint,
-			"status_code", r.StatusCode,
-			"body", string(body))
-		return
 	}
 }
 
