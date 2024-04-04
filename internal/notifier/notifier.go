@@ -19,7 +19,7 @@ type UnexpectedStatusError struct {
 }
 
 func (e *UnexpectedStatusError) Error() string {
-	return fmt.Sprintf("unexpected status code: %d", e.Status)
+	return fmt.Sprintf("unexpected status code: %d (%s)", e.Status, e.Body)
 }
 
 // Notify sends a notification to the Gotify server.
