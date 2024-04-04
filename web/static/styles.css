@@ -33,11 +33,23 @@ h4 {
   font-family: sans-serif;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   padding-top: 0;
   padding-bottom: 0;
   color: var(--fg);
   background-color: var(--bg);
+
+  display: flex;
+  flex-direction: column;
+}
+
+body > main {
+  flex: 1;
 }
 
 button {
@@ -49,6 +61,33 @@ button {
 
 button:hover {
   background-color: var(--pink);
+}
+
+a,
+button.link-button {
+  background-color: transparent;
+  color: #eb99a1;
+  font-size: 1em;
+  text-decoration: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  transition: none;
+  border-bottom: 2px solid transparent;
+}
+
+a:visited {
+  color: #eb99a1;
+}
+
+a:hover,
+button.link-button:hover {
+  color: #da4453;
+  border-bottom: 2px solid #d9d8dc;
+}
+
+button img {
+  margin: 0;
 }
 
 section {
@@ -91,6 +130,19 @@ header .github-button img {
 header h1 {
   margin: 0;
   font-size: 1em;
+}
+
+footer {
+  margin: var(--spacing) 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: calc(var(--spacing) / 2);
+  font-size: 0.85em;
+}
+
+footer * {
+  line-height: 1.25;
 }
 
 table td,
@@ -151,7 +203,7 @@ table th {
 }
 
 #index #record-dose:hover {
-  color: var(--fg);
+  color: var(--bg);
   background-color: var(--blue);
 }
 
@@ -165,7 +217,7 @@ table th {
 }
 
 #index #delete-dose:hover {
-  color: var(--fg);
+  color: var(--bg);
   background-color: var(--pink);
 }
 

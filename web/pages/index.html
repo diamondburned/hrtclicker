@@ -4,15 +4,6 @@
 
 <header>
   <h1>hrtclicker</h1>
-  <a
-    href="https://github.com/diamondburned/hrtclicker"
-    role="button"
-    title="Source code"
-    class="github-button"
-    target="_blank"
-  >
-    <img src="/static/github-mark-white.png" alt="GitHub" />
-  </a>
 </header>
 
 {{ $nextDoseTime := .NextDoseTime }}
@@ -101,6 +92,16 @@
     <div id="history-chart"></div>
   </section>
 </main>
+
+<footer>
+  <a href="https://github.com/diamondburned/hrtclicker" class="github-button" target="_blank">
+    Source code
+  </a>
+  <span>ꞏ</span>
+  <form method="post" action="/notify/test">
+    <button type="submit" class="link-button">Test notification</button>
+  </form>
+</footer>
 
 <script async defer>
   const relativeFormatters = {

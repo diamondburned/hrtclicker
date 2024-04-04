@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"libdb.so/hrtclicker"
 	"libdb.so/hrtclicker/db"
+	"libdb.so/hrtclicker/internal/notifier"
 	"libdb.so/hrtclicker/web"
 )
 
@@ -32,6 +34,7 @@ func New(deps Dependencies) *Server {
 	}
 
 	r.Get("/", s.handleIndex)
+	r.Post("/notify/test", s.handleGotifyTest)
 	r.Post("/dosage/record", s.handleRecordDosage)
 	r.Post("/dosage/delete", s.handleDeleteDosage)
 
@@ -58,6 +61,27 @@ func (s *Server) handleDeleteDosage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (s *Server) handleGotifyTest(w http.ResponseWriter, r *http.Request) {
+	notification := hrtclicker.Notification{
+		Title:   "Test Notification",
+		Message: "hi cutie! <3",
+		Extras:  s.Config.Gotify.Notification.Extras,
+	}
+
+	if err := notifier.Notify(
+		r.Context(),
+		s.Config.Gotify.Endpoint,
+		s.Config.Gotify.Token,
+		notification,
+	); err != nil {
+		writeError(w, "failed to send test notification", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain")
+	io.WriteString(w, "notification sent, go check your phone!")
 }
 
 func writeError(w http.ResponseWriter, msg string, err error) {
