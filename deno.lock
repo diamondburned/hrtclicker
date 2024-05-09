@@ -1,0 +1,6 @@
+{
+  "version": "3",
+  "remote": {
+    "https://cdn.jsdelivr.net/npm/lightweight-charts@4.1/dist/lightweight-charts.standalone.production.mjs": "1ce8e6a34c1be1040d2cf22b71110a5221c85dcfad2710256b2d4e7d493c72b3"
+  }
+}

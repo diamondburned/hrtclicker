@@ -20,7 +20,7 @@ import (
 var (
 	configPath   = "config.json"
 	httpAddress  = ":8375"
-	databasePath = "/tmp/hrt-clicker.db"
+	databasePath = "/tmp/hrtclicker.db"
 )
 
 func main() {

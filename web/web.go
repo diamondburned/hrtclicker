@@ -2,15 +2,19 @@ package web
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/fs"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
 	"libdb.so/tmplutil"
 )
+
+//go:generate esbuild --bundle --format=esm --minify --sourcemap --outfile=static/hrtplotter.js static/hrtplotter/index.ts
 
 //go:embed components pages static
 var embedFS embed.FS
@@ -41,6 +45,22 @@ func NewTemplates(fs fs.FS) (*Templates, error) {
 			template.FuncMap{
 				"rfc3339": func(t time.Time) string {
 					return t.Format(time.RFC3339)
+				},
+				"storeJSON": func(name string, v any) template.HTML {
+					b, err := json.Marshal(v)
+					if err != nil {
+						panic(fmt.Errorf("failed to marshal JSON: %w", err))
+					}
+
+					var s strings.Builder
+					s.WriteString("<script async>")
+					s.WriteString("window.")
+					s.WriteString(name)
+					s.WriteString(" = ")
+					s.Write(b)
+					s.WriteString(";</script>")
+
+					return template.HTML(s.String())
 				},
 			},
 		),

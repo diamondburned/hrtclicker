@@ -67,7 +67,7 @@
   <section id="recent-doses">
     <h2>Recent Doses</h2>
 
-    <table>
+    <table id="doses-table">
       <thead>
         <tr>
           <th>When</th>
@@ -87,9 +87,31 @@
         {{ end }}
       </tbody>
     </table>
+  </section>
 
-    <!-- TODO -->
+  <section id="dosage-details" style="display: none">
+    <h2>Dosage Details</h2>
     <div id="history-chart"></div>
+
+    <h3>Averages</h3>
+    <table id="dosage-averages">
+      <tr>
+        <th>Daily</th>
+        <td><span id="average-1"></span> pg/mL</td>
+      </tr>
+      <tr>
+        <th>Weekly</th>
+        <td><span id="average-7"></span> pg/mL</td>
+      </tr>
+      <tr>
+        <th>Bi-weekly</th>
+        <td><span id="average-14"></span> pg/mL</td>
+      </tr>
+      <tr>
+        <th>Monthly</th>
+        <td><span id="average-30"></span> pg/mL</td>
+      </tr>
+    </table>
   </section>
 </main>
 
@@ -103,77 +125,54 @@
   </form>
 </footer>
 
-<script async defer>
-  const relativeFormatters = {
-    short: new Intl.RelativeTimeFormat("en", { numeric: "auto", style: "short" }),
-    long: new Intl.RelativeTimeFormat("en", { numeric: "auto", style: "long" }),
-  };
+{{ storeJSON "dosageHistory" $dosageHistory }}
+{{ storeJSON "configHRTType" .HRTConfig.Type }}
+{{ storeJSON "configIntervalHours" .HRTConfig.Interval.AsDuration.Hours }}
+{{ storeJSON "configConcurrence" .HRTConfig.Concurrence }}
 
-  function formatDuration(duration, long = false) {
-    duration = duration / 1000;
 
-    const minute = 60;
-    const hour = minute * 60;
-    const day = hour * 24;
+<script type="module">
+  import {
+    EstrogenPlotter,
+    patchesPredictor,
+    averageDays,
+    calculateAverages,
+  } from "/static/hrtplotter.js";
 
-    let unit = "second";
-    if (Math.abs(duration) > day) {
-      unit = "day";
-      duration = Math.round(duration / day);
-    } else if (Math.abs(duration) > hour) {
-      unit = "hour";
-      duration = Math.round(duration / hour);
-    } else if (Math.abs(duration) > minute) {
-      unit = "minute";
-      duration = Math.round(duration / minute);
-    } else {
-      duration = Math.round(duration);
-    }
-
-    return relativeFormatters[long ? "long" : "short"].format(duration, unit);
+  function enableDosageDetails() {
+    const dosageDetails = document.getElementById("dosage-details");
+    dosageDetails.style.display = "block";
   }
 
-  const absoluteFormatters = {
-    short: new Intl.DateTimeFormat("en", {
-      hour: "numeric",
-      minute: "numeric",
-    }),
-    long: new Intl.DateTimeFormat("en", {
-      timeStyle: "medium",
-      dateStyle: "medium",
-    }),
-  };
+  switch (configHRTType) {
+    case "patches": {
+      const applicationTimes = dosageHistory
+        .filter((dose) => dose.HRTType == "patches")
+        .map((dose) => Date.parse(dose.DosageAt) / 1000);
 
-  function formatTime(time, long = false) {
-    return absoluteFormatters[long ? "long" : "short"].format(time);
-  }
+      const values = await patchesPredictor.predict(applicationTimes, {
+        intervalHours: configIntervalHours,
+        concurrence: configConcurrence,
+        hoursAgo: 24 * 30, // 30 days or 1 month
+      });
 
-  document.querySelectorAll("time").forEach((el) => {
-    const time = Date.parse(el.getAttribute("datetime"));
-    const long = el.getAttribute("data-format") == "long";
-    const title = !!el.getAttribute("data-format-title");
-    const format = el.classList.contains("relative")
-      ? () => formatDuration(time - Date.now(), long)
-      : () => formatTime(time, long);
-    const update = () => {
-      el.textContent = format();
-    };
-    setInterval(update, 1000);
-    update();
-  });
+      const plotter = new EstrogenPlotter(document.getElementById("history-chart"));
+      plotter.update(values);
 
-  document.querySelectorAll("button[data-destructive]").forEach((el) => {
-    const confirmation = el.getAttribute("data-confirmation") || "Are you sure?";
-    el.addEventListener("click", (e) => {
-      if (!confirm(confirmation)) {
-        e.preventDefault();
+      const averages = calculateAverages(values);
+      for (let [days, value] of Object.entries(averages)) {
+        value = averages[days].toFixed(1);
+        document.getElementById(`average-${days}`).textContent = value;
       }
-    });
-  });
+
+      enableDosageDetails();
+      break;
+    }
+    default: {
+      console.log("not drawing chart due to unknown type", hrtConfig.type);
+      break;
+    }
+  }
 </script>
 
-<script async defer>
-  // TODO: render chart
-  const dosageHistory = JSON.parse({{ toJson $dosageHistory }})
-  const chartElement = document.getElementById("history-chart");
-</script>
+<script src="/static/time.js" async defer></script>

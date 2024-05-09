@@ -21,6 +21,8 @@
 						gopls
 						go-tools
 						sqlc
+						deno
+						esbuild
 						prettier-gohtml-nix.packages.${system}.default
 					];
 				};

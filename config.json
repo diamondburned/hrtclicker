@@ -1,7 +1,8 @@
 {
   "hrt": {
     "type": "patches",
-    "interval": "36h"
+    "interval": "36h",
+    "concurrence": 4
   },
   "gotify": {
     "endpoint": "http://gotify.skate-gopher.ts.net",

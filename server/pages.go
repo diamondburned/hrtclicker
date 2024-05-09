@@ -33,6 +33,10 @@ func (d indexData) DosageHistory() ([]db.HRTHistory, error) {
 	return d.deps.Database.DosageHistory(d.ctx, string(d.deps.Config.HRT.Type))
 }
 
+func (d indexData) HRTConfig() hrtclicker.HRTConfig {
+	return d.deps.Config.HRT
+}
+
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	s.Templates.Execute(w, "index", indexData{
 		HRTType: s.Config.HRT.Type,

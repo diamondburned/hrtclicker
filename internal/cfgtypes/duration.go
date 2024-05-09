@@ -9,6 +9,10 @@ import (
 // Duration is a type that can be used to unmarshal a time.Duration from JSON.
 type Duration time.Duration
 
+func (d Duration) AsDuration() time.Duration {
+	return time.Duration(d)
+}
+
 func (d *Duration) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {

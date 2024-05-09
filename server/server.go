@@ -1,10 +1,13 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
+	"slices"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -34,6 +37,8 @@ func New(deps Dependencies) *Server {
 	}
 
 	r.Get("/", s.handleIndex)
+	r.Get("/dosages.json", s.getDosagesJSON)
+
 	r.Post("/notify/test", s.handleGotifyTest)
 	r.Post("/dosage/record", s.handleRecordDosage)
 	r.Post("/dosage/delete", s.handleDeleteDosage)
@@ -45,6 +50,41 @@ func New(deps Dependencies) *Server {
 	})
 
 	return s
+}
+
+func (s *Server) getDosagesJSON(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		write400Error(w, "failed to parse form", err)
+		return
+	}
+
+	doses, err := s.Database.DosageHistory(r.Context(), string(s.Config.HRT.Type))
+	if err != nil {
+		writeError(w, "failed to get dosage history", err)
+		return
+	}
+
+	if r.FormValue("range") != "" {
+		d, err := time.ParseDuration(r.FormValue("range"))
+		if err != nil {
+			write400Error(w, "failed to parse range", err)
+			return
+		}
+
+		after := time.Now().Add(-d)
+		i := slices.IndexFunc(doses, func(dose db.HRTHistory) bool {
+			return dose.DosageAt.Before(after)
+		})
+		if i != -1 {
+			doses = doses[:i]
+		}
+	}
+
+	// Reverse the order so the most recent dose is first.
+	slices.Reverse(doses)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(doses)
 }
 
 func (s *Server) handleRecordDosage(w http.ResponseWriter, r *http.Request) {
@@ -86,4 +126,8 @@ func (s *Server) handleGotifyTest(w http.ResponseWriter, r *http.Request) {
 
 func writeError(w http.ResponseWriter, msg string, err error) {
 	http.Error(w, fmt.Sprintf("%s: %v", msg, err), http.StatusInternalServerError)
+}
+
+func write400Error(w http.ResponseWriter, msg string, err error) {
+	http.Error(w, fmt.Sprintf("%s: %v", msg, err), 400)
 }

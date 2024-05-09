@@ -9,13 +9,16 @@ import (
 	"libdb.so/hrtclicker/internal/cfgtypes"
 )
 
+type HRTConfig struct {
+	Type        HRTType           `json:"type"`
+	Interval    cfgtypes.Duration `json:"interval"`
+	Concurrence int               `json:"concurrence"`
+}
+
 // Config contains the configuration for the hrtclicker application.
 // See config.json for an example configuration.
 type Config struct {
-	HRT struct {
-		Type     HRTType           `json:"type"`
-		Interval cfgtypes.Duration `json:"interval"`
-	} `json:"hrt"`
+	HRT    HRTConfig `json:"hrt"`
 	Gotify struct {
 		Endpoint     string       `json:"endpoint"`
 		Token        string       `json:"token"`
