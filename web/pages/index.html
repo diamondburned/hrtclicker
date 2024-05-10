@@ -91,26 +91,52 @@
 
   <section id="dosage-details" style="display: none">
     <h2>Dosage Details</h2>
-    <div id="history-chart"></div>
+
+    <div class="plots">
+      <div class="plot" id="history-line"></div>
+      <!-- <div class="plot" id="history-candlesticks"></div> -->
+    </div>
 
     <h3>Averages</h3>
-    <table id="dosage-averages">
-      <tr>
-        <th>Daily</th>
-        <td><span id="average-1"></span> pg/mL</td>
-      </tr>
-      <tr>
-        <th>Weekly</th>
-        <td><span id="average-7"></span> pg/mL</td>
-      </tr>
-      <tr>
-        <th>Bi-weekly</th>
-        <td><span id="average-14"></span> pg/mL</td>
-      </tr>
-      <tr>
-        <th>Monthly</th>
-        <td><span id="average-30"></span> pg/mL</td>
-      </tr>
+    <table id="dosage-stats">
+      {{ define "stat-row" }}
+        <tr data-name="{{ .Name }}" data-for-days="{{ .ForDays }}">
+          <th>{{ .Name }}</th>
+          <td>
+            <span class="mean">
+              <span data-value="mean"></span>
+              <span class="unit">pg/mL</span>
+            </span>
+            <span class="stddev">
+              <span>±</span>
+              <span data-value="stddev"></span>
+              <span class="unit">pg/mL</span>
+            </span>
+            <span class="quantiles">
+              {{ range .Quantiles }}
+                <span class="quantile" data-quantile="{{ . }}">
+                  <span class="quantile-lower">
+                    <span data-value="quantile" data-quantile="{{ subf 100 . }}"></span>
+                    <span class="unit">pg/mL</span>
+                  </span>
+                  <span class="quantile-upper">
+                    <span data-value="quantile" data-quantile="{{ . }}"></span>
+                    <span class="unit">pg/mL</span>
+                  </span>
+                </span>
+              {{ end }}
+            </span>
+          </td>
+        </tr>
+      {{ end }}
+      {{ range (list
+        (dict  "Name" "Daily"      "ForDays" 1   "Quantiles" (list 95 99))
+        (dict  "Name" "Weekly"     "ForDays" 7   "Quantiles" (list 95 99))
+        (dict  "Name" "Bi-weekly"  "ForDays" 14  "Quantiles" (list 95 99))
+        (dict  "Name" "Monthly"    "ForDays" 30  "Quantiles" (list 95 99)))
+      }}
+        {{ template "stat-row" . }}
+      {{ end }}
     </table>
   </section>
 </main>
@@ -126,53 +152,12 @@
 </footer>
 
 {{ storeJSON "dosageHistory" $dosageHistory }}
-{{ storeJSON "configHRTType" .HRTConfig.Type }}
-{{ storeJSON "configIntervalHours" .HRTConfig.Interval.AsDuration.Hours }}
-{{ storeJSON "configConcurrence" .HRTConfig.Concurrence }}
+{{ storeJSON "config" (dict
+  "Type"          .HRTConfig.Type
+  "IntervalHours" .HRTConfig.Interval.AsDuration.Hours
+  "Concurrence"   .HRTConfig.Concurrence)
+}}
 
 
-<script type="module">
-  import {
-    EstrogenPlotter,
-    patchesPredictor,
-    averageDays,
-    calculateAverages,
-  } from "/static/hrtplotter.js";
-
-  function enableDosageDetails() {
-    const dosageDetails = document.getElementById("dosage-details");
-    dosageDetails.style.display = "block";
-  }
-
-  switch (configHRTType) {
-    case "patches": {
-      const applicationTimes = dosageHistory
-        .filter((dose) => dose.HRTType == "patches")
-        .map((dose) => Date.parse(dose.DosageAt) / 1000);
-
-      const values = await patchesPredictor.predict(applicationTimes, {
-        intervalHours: configIntervalHours,
-        concurrence: configConcurrence,
-        hoursAgo: 24 * 30, // 30 days or 1 month
-      });
-
-      const plotter = new EstrogenPlotter(document.getElementById("history-chart"));
-      plotter.update(values);
-
-      const averages = calculateAverages(values);
-      for (let [days, value] of Object.entries(averages)) {
-        value = averages[days].toFixed(1);
-        document.getElementById(`average-${days}`).textContent = value;
-      }
-
-      enableDosageDetails();
-      break;
-    }
-    default: {
-      console.log("not drawing chart due to unknown type", hrtConfig.type);
-      break;
-    }
-  }
-</script>
-
+<script src="/static/hrtplotter.js" type="module"></script>
 <script src="/static/time.js" async defer></script>

@@ -7,22 +7,6 @@ export type TimeValue = {
   v: number;
 };
 
-export const averageDays = [1, 7, 14, 30] as const;
-
-export function calculateAverages(
-  values: TimeValue[],
-): Record<typeof averageDays[number], number[]> {
-  const averages = {};
-  for (const days of averageDays) {
-    const averageHours = days * 24;
-    averages[days] = values
-      .slice(-averageHours)
-      .map((v) => v.v)
-      .reduce((a, b) => a + b, 0) / averageHours;
-  }
-  return averages as Record<typeof averageDays[number], number[]>;
-}
-
 export type PredictOpts = {
   // intervalHours is the expected interval between applications in hours.
   intervalHours: number;
@@ -107,12 +91,18 @@ export class DiscreteHourlyPredictor implements Predictor {
         continue;
       }
 
+      let fOffset = 0;
+      if (hourStart < 0) {
+        fOffset = -hourStart;
+        hourStart = 0;
+        hourEnd = Math.min(values.length, hourEnd - hourStart);
+      }
       hourStart = Math.max(0, hourStart);
       hourEnd = Math.min(values.length, hourEnd);
 
       console.debug("for", t, "total hours taken is", hourEnd - hourStart);
       for (let h = hourStart; h < hourEnd; h++) {
-        values[h] += this.f(h - hourStart);
+        values[h] += this.f(h - hourStart + fOffset);
       }
     }
 

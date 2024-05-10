@@ -14,8 +14,7 @@ import (
 	"libdb.so/tmplutil"
 )
 
-//go:generate esbuild --bundle --format=esm --minify --sourcemap --outfile=static/hrtplotter.js static/hrtplotter/index.ts
-
+//go:generate ./bundle.ts static/hrtplotter/index.ts static/hrtplotter.js
 //go:embed components pages static
 var embedFS embed.FS
 

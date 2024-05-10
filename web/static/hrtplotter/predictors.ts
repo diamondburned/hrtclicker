@@ -1,5 +1,5 @@
 import { DiscreteHourlyPredictor } from "./predict.ts";
-import patchValues_ from "./patch-values.json" with { type: "json" };
+import patchValues_ from "./values/patches.json" with { type: "json" };
 
 const patchValues = patchValues_ as number[];
 // const patchMaxValue = Math.max(...patchValues);
