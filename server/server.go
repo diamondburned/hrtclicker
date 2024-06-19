@@ -39,9 +39,11 @@ func New(deps Dependencies) *Server {
 	r.Get("/", s.handleIndex)
 	r.Get("/dosages.json", s.getDosagesJSON)
 
-	r.Post("/notify/test", s.handleGotifyTest)
-	r.Post("/dosage/record", s.handleRecordDosage)
-	r.Post("/dosage/delete", s.handleDeleteDosage)
+	r.Route("/api", func(r chi.Router) {
+		r.Post("/notify/test", s.handleGotifyTest)
+		r.Post("/dosage/record", s.handleRecordDosage)
+		r.Post("/dosage/delete", s.handleDeleteDosage)
+	})
 
 	r.Route("/static", func(r chi.Router) {
 		r.Use(middleware.Compress(5))
